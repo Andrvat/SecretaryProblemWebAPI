@@ -4,7 +4,6 @@ using Microsoft.AspNetCore.Mvc;
 namespace SecretaryProblemWebAPI.Controllers;
 
 [ApiController]
-[Route("[controller]")]
 public class HallController : ControllerBase
 {
     private readonly ILogger<HallController> _logger;
@@ -19,40 +18,58 @@ public class HallController : ControllerBase
         _friend = friend;
     }
 
-    [HttpPost("{attemptNumber:int}/next")]
-    public ContenderFullNameDto GetNextContenderForGivenAttempt(int attemptNumber, [FromQuery] int session)
+    [HttpPost("hall/{attemptNumber:int}/next")]
+    public IActionResult GetNextContenderForGivenAttempt(int attemptNumber, [FromQuery] int session)
     {
-        if (_hall.GetQueueCount() == 0)
+        try
         {
-            return new ContenderFullNameDto
+            if (_hall.GetQueueCount() == 0)
             {
-                Name = null
-            };
+                return Ok(
+                    new ContenderFullNameDto
+                    {
+                        Name = null
+                    });
+            }
+
+            var currentContender = (RatingContender)_hall.GetNextContender();
+            _friend.NotifyAboutContender(currentContender);
+
+            return Ok(
+                new ContenderFullNameDto()
+                {
+                    Name = currentContender.GetFullName()
+                });
         }
-
-        var currentContender = (RatingContender)_hall.GetNextContender();
-        _friend.NotifyAboutContender(currentContender);
-
-        return new ContenderFullNameDto()
+        catch (Exception e)
         {
-            Name = currentContender.GetFullName()
-        };
+            return BadRequest(e.Message);
+        }
     }
 
-    [HttpPost("{attemptNumber:int}/select")]
-    public ContenderRankDto GetContenderRankFromAttempt(int attemptNumber, [FromQuery] int session)
+    [HttpPost("hall/{attemptNumber:int}/select")]
+    public IActionResult GetContenderRankFromAttempt(int attemptNumber, [FromQuery] int session)
     {
-        if (_hall.GetLastContender() is not RatingContender contender)
+        try
         {
-            return new ContenderRankDto
+            if (_hall.GetLastContender() is RatingContender contender)
             {
-                Rank = null
-            };
-        }
+                return Ok(
+                    new ContenderRankDto
+                    {
+                        Rank = contender.Rating
+                    });
+            }
 
-        return new ContenderRankDto
+            return Ok(
+                new ContenderRankDto
+                {
+                    Rank = null
+                });
+        }
+        catch (Exception e)
         {
-            Rank = contender.Rating
-        };
+            return BadRequest(e.Message);
+        }
     }
 }

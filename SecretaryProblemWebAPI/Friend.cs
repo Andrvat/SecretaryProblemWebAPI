@@ -9,20 +9,21 @@ public class Friend
         _visitedContenders.Add(contender);
     }
 
-    public bool ReplyToComparison(Contender newContender, Contender oldContender)
+    public bool ReplyToComparison(string? firstContenderFullName, string? secondContenderFullName)
     {
-        var foundContender = _visitedContenders.Find(contender =>
-            contender.Surname.Equals(oldContender.Surname) &&
-            contender.Name.Equals(oldContender.Name) &&
-            contender.Patronymic.Equals(oldContender.Patronymic));
-        if (foundContender is null)
+        var firstContender = _visitedContenders.Find(contender => contender.GetFullName() == firstContenderFullName);
+        var secondContender = _visitedContenders.Find(contender => contender.GetFullName() == secondContenderFullName);
+        return CompareContenders(firstContender, secondContender);
+    }
+
+    private static bool CompareContenders(Contender? firstContender, Contender? secondContender)
+    {
+        if (firstContender is null || secondContender is null)
         {
-            throw new InvalidOperationException(
-                $"Seems like contender {oldContender.GetFullName()} does not visit princess before!");
+            throw new InvalidOperationException("Some of contenders didn't visit princess before");
         }
 
-        var ratingContender = (RatingContender)newContender;
-        return ratingContender.Rating > foundContender.Rating;
+        return ((RatingContender)firstContender).Rating > ((RatingContender)secondContender).Rating;
     }
 
     public void Reset()

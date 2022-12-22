@@ -24,4 +24,9 @@ public class Friend
         var ratingContender = (RatingContender)newContender;
         return ratingContender.Rating > foundContender.Rating;
     }
+
+    public void Reset()
+    {
+        _visitedContenders.Clear();
+    }
 }

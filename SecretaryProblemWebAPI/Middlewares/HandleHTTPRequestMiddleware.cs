@@ -62,6 +62,7 @@ public class HandleHttpRequestMiddleware
                     _attemptsDbConfigurator.ConfigureAttempts();
                     _contendersDbGenerator.CreateContenders();
                     _hall.InviteContenders(_contendersDbGenerator.GetContenders());
+                    _hall.NotifyFriendAboutReset();
                     break;
                 }
                 default:

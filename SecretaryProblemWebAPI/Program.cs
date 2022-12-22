@@ -1,3 +1,4 @@
+using DataContracts.Common;
 using SecretaryProblemWebAPI;
 using SecretaryProblemWebAPI.Generators;
 using SecretaryProblemWebAPI.Middlewares;

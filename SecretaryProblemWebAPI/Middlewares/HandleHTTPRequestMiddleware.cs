@@ -1,4 +1,5 @@
 ﻿using System.Text;
+using DataContracts.Common;
 using SecretaryProblemWebAPI.Generators;
 
 namespace SecretaryProblemWebAPI.Middlewares;

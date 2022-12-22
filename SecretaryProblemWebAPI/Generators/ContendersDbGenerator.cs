@@ -1,4 +1,5 @@
 ﻿using System.Diagnostics;
+using DataContracts.Common;
 
 namespace SecretaryProblemWebAPI.Generators;
 

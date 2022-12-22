@@ -2,11 +2,11 @@
 
 public class Contender
 {
-    public string Surname { get; }
-    public string Name { get; }
-    public string Patronymic { get; }
+    public string Surname { get; init; }
+    public string Name { get; init; }
+    public string Patronymic { get; init; }
 
-    protected Contender(string surname, string name, string patronymic)
+    public Contender(string surname, string name, string patronymic)
     {
         Surname = surname ?? throw new ArgumentNullException(nameof(surname));
         Name = name ?? throw new ArgumentNullException(nameof(name));

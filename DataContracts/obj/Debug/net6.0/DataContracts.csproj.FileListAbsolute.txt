@@ -57,3 +57,4 @@ C:\Users\user\RiderProjects\SecretaryProblemWebAPI\DataContracts\obj\Debug\net6.
 C:\Users\user\RiderProjects\SecretaryProblemWebAPI\DataContracts\obj\Debug\net6.0\DataContracts.pdb
 C:\Users\user\RiderProjects\SecretaryProblemWebAPI\DataContracts\obj\Debug\net6.0\DataContracts.genruntimeconfig.cache
 C:\Users\user\RiderProjects\SecretaryProblemWebAPI\DataContracts\obj\Debug\net6.0\ref\DataContracts.dll
+C:\Users\user\RiderProjects\SecretaryProblemWebAPI\DataContracts\bin\Debug\net6.0\Newtonsoft.Json.dll

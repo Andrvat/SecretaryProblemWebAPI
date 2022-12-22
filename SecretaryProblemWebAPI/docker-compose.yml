@@ -1,0 +1,14 @@
+﻿version: '3.5'
+services:
+  db:
+    container_name: secretary_problem_db
+    image: postgres
+    restart: unless-stopped
+    ports:
+      - "5432:5432"
+    volumes:
+      - ./pgdata:/var/lib/postgresql/data
+    environment:
+      POSTGRES_PASSWORD: ${POSTGRES_PASS:-password}
+      POSTGRES_USER: admin
+      POSTGRES_DB: db

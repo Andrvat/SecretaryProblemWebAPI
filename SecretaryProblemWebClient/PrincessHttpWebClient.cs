@@ -1,6 +1,5 @@
 ﻿using System.Data;
 using System.Text;
-using DataContracts.Common;
 using DataContracts.Dtos;
 using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json;
@@ -28,11 +27,7 @@ public class PrincessHttpWebClient
         var response = GetConfiguredHttpClient().PostAsync(
             $"hall/{attemptId}/next", new StringContent($"{attemptId}")).Result;
 
-        // TODO: throw exception
-        if (!response.IsSuccessStatusCode) return null;
-
-        var responseString = response.Content.ReadAsStringAsync().Result;
-        var contender = JsonConvert.DeserializeObject<ContenderFullNameDto>(responseString);
+        var contender = JsonConvert.DeserializeObject<ContenderFullNameDto>(GetResponseString(response));
         var contenderFullName = contender.Name.Split(" ");
         return new Contender(
             surname: contenderFullName[0],
@@ -43,7 +38,7 @@ public class PrincessHttpWebClient
     public bool CompareContenders(Contender firstContender, Contender secondContender)
     {
         using var scope = _scopeFactory.CreateScope();
-        
+
         var attemptId = scope.ServiceProvider.GetService<AttemptsNumberProvider>()!.AttemptNumber;
         var contendersComparisonDto = new ContendersComparisonDto
         {
@@ -55,14 +50,8 @@ public class PrincessHttpWebClient
                 JsonConvert.SerializeObject(contendersComparisonDto),
                 Encoding.UTF8,
                 "application/json")).Result;
-        
-        if (!response.IsSuccessStatusCode)
-        {
-            throw new DataException("");
-        };
 
-        var responseString = response.Content.ReadAsStringAsync().Result;
-        var bestContender = JsonConvert.DeserializeObject<ContenderFullNameDto>(responseString);
+        var bestContender = JsonConvert.DeserializeObject<ContenderFullNameDto>(GetResponseString(response));
         return firstContender.GetFullName() == bestContender.Name;
     }
 
@@ -71,13 +60,10 @@ public class PrincessHttpWebClient
         using var scope = _scopeFactory.CreateScope();
         var attemptId = scope.ServiceProvider.GetService<AttemptsNumberProvider>()!.AttemptNumber;
 
-        var response = GetConfiguredHttpClient().PostAsync($"hall/{attemptId}/select", new StringContent($"{attemptId}")).Result;
+        var response = GetConfiguredHttpClient()
+            .PostAsync($"hall/{attemptId}/select", new StringContent($"{attemptId}")).Result;
 
-        // TODO: throw exception
-        if (!response.IsSuccessStatusCode) return 0;
-
-        var responseString = response.Content.ReadAsStringAsync().Result;
-        var contenderRankDto = JsonConvert.DeserializeObject<ContenderRankDto>(responseString);
+        var contenderRankDto = JsonConvert.DeserializeObject<ContenderRankDto>(GetResponseString(response));
         return contenderRankDto!.Rank.Value;
     }
 
@@ -93,5 +79,16 @@ public class PrincessHttpWebClient
         var clientHandler = new HttpClientHandler();
         clientHandler.ServerCertificateCustomValidationCallback = (_, _, _, _) => true;
         return clientHandler;
+    }
+
+    private static string GetResponseString(HttpResponseMessage? response)
+    {
+        if (!response.IsSuccessStatusCode)
+        {
+            var errorDto = JsonConvert.DeserializeObject<ErrorDto>(response.Content.ReadAsStringAsync().Result);
+            throw new DataException($"Remote server: {response.StatusCode}. Description: {errorDto.Description}");
+        }
+
+        return response.Content.ReadAsStringAsync().Result;
     }
 }

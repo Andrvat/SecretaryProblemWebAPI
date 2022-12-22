@@ -34,9 +34,9 @@ public class HallController : ControllerBase
 
             var currentContender = (RatingContender)_hall.GetNextContender();
             _friend.NotifyAboutContender(currentContender);
-
+            
             return Ok(
-                new ContenderFullNameDto()
+                new ContenderFullNameDto
                 {
                     Name = currentContender.GetFullName()
                 });

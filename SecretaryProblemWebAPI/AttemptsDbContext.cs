@@ -11,6 +11,6 @@ public class AttemptsDbContext : DbContext
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
-        optionsBuilder.UseNpgsql("Host=localhost;Port=5432;Database=db;Username=admin;Password=password");
+        optionsBuilder.UseNpgsql("Host=localhost;Port=5432;Database=webdb;Username=admin;Password=password");
     }
 }

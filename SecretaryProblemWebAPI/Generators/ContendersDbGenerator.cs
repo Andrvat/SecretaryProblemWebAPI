@@ -4,15 +4,15 @@ namespace SecretaryProblemWebAPI.Generators;
 
 public class ContendersDbGenerator : IGenerator
 {
-    private readonly AttemptsDbContext _context;
+    private readonly IServiceScopeFactory _scopeFactory;
     private readonly AttemptsNumberProvider _attemptsNumberProvider;
 
     private int? _currentAttempt;
     private List<Contender>? _currentContenders;
 
-    public ContendersDbGenerator(AttemptsDbContext context, AttemptsNumberProvider attemptsNumberProvider)
+    public ContendersDbGenerator(IServiceScopeFactory scopeFactory, AttemptsNumberProvider attemptsNumberProvider)
     {
-        _context = context;
+        _scopeFactory = scopeFactory;
         _attemptsNumberProvider = attemptsNumberProvider;
     }
 
@@ -23,7 +23,9 @@ public class ContendersDbGenerator : IGenerator
 
     private List<Contender> GetContendersByAttempt()
     {
-        var recordEntities = _context.AttemptRecordEntities
+        using var scope = _scopeFactory.CreateScope();
+        var dbContext = scope.ServiceProvider.GetService<AttemptsDbContext>();
+        var recordEntities = dbContext.AttemptRecordEntities
             .Where(record => Equals(record.AttemptNumber, _currentAttempt))
             .Select(record => record.ContenderEntity);
 

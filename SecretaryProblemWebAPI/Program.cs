@@ -1,15 +1,16 @@
 using SecretaryProblemWebAPI;
 using SecretaryProblemWebAPI.Generators;
+using SecretaryProblemWebAPI.Middlewares;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 
-builder.Services.AddSingleton<AttemptsDbConfigurator>();
 builder.Services.AddDbContext<AttemptsDbContext>();
+builder.Services.AddSingleton<ContendersFileGenerator>();
+builder.Services.AddSingleton<AttemptsDbConfigurator>();
 
 builder.Services.AddSingleton<AttemptsNumberProvider>();
-builder.Services.AddSingleton<ContendersFileGenerator>();
 builder.Services.AddSingleton<ContendersDbGenerator>();
 
 builder.Services.AddSingleton<Hall>();
@@ -33,6 +34,7 @@ app.UseHttpsRedirection();
 
 app.UseAuthorization();
 
+app.UseMiddleware<HandleHttpRequestMiddleware>();
 app.MapControllers();
 
 app.Run();

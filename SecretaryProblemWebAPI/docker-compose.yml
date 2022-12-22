@@ -1,7 +1,7 @@
 ﻿version: '3.5'
 services:
   db:
-    container_name: secretary_problem_db
+    container_name: secretary_problem_webdb
     image: postgres
     restart: unless-stopped
     ports:
@@ -11,4 +11,4 @@ services:
     environment:
       POSTGRES_PASSWORD: ${POSTGRES_PASS:-password}
       POSTGRES_USER: admin
-      POSTGRES_DB: db
+      POSTGRES_DB: webdb

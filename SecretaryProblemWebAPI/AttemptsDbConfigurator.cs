@@ -9,36 +9,38 @@ public class AttemptsDbConfigurator
     public const int ContendersNumber = 100;
     private const int AttemptRecordsNumber = ContendersNumber * AttemptsNumber;
 
-    private AttemptsDbContext _context;
-    private ContendersFileGenerator _generator;
+    private readonly IServiceScopeFactory _scopeFactory;
+    private readonly ContendersFileGenerator _generator;
 
-    public AttemptsDbConfigurator(AttemptsDbContext context, ContendersFileGenerator generator)
+    public AttemptsDbConfigurator(IServiceScopeFactory scopeFactory, ContendersFileGenerator generator)
     {
-        _context = context;
+        _scopeFactory = scopeFactory;
         _generator = generator;
     }
 
     public void ConfigureAttempts()
     {
-        if (ContendersNumber != _context.RatingContenderEntities.Count())
+        using var scope = _scopeFactory.CreateScope();
+        var dbContext = scope.ServiceProvider.GetService<AttemptsDbContext>();
+        if (ContendersNumber != dbContext.RatingContenderEntities.Count())
         {
-            _context.AttemptRecordEntities.RemoveRange(_context.AttemptRecordEntities);
-            _context.RatingContenderEntities.RemoveRange(_context.RatingContenderEntities);
-            _context.SaveChanges();
+            dbContext.AttemptRecordEntities.RemoveRange(dbContext.AttemptRecordEntities);
+            dbContext.RatingContenderEntities.RemoveRange(dbContext.RatingContenderEntities);
+            dbContext.SaveChanges();
 
-            FillRatingContenders();
-            FillAttemptRecords();
+            FillRatingContenders(context: dbContext);
+            FillAttemptRecords(context: dbContext);
         }
-        else if (AttemptRecordsNumber != _context.AttemptRecordEntities.Count())
+        else if (AttemptRecordsNumber != dbContext.AttemptRecordEntities.Count())
         {
-            _context.AttemptRecordEntities.RemoveRange(_context.AttemptRecordEntities);
-            _context.SaveChanges();
+            dbContext.AttemptRecordEntities.RemoveRange(dbContext.AttemptRecordEntities);
+            dbContext.SaveChanges();
 
-            FillAttemptRecords();
+            FillAttemptRecords(context: dbContext);
         }
     }
 
-    private void FillAttemptRecords()
+    private void FillAttemptRecords(AttemptsDbContext context)
     {
         for (var attempt = 0; attempt < AttemptsNumber; ++attempt)
         {
@@ -46,9 +48,9 @@ public class AttemptsDbConfigurator
             var contenders = _generator.GetContenders();
             for (var num = 0; num < contenders.Count; ++num)
             {
-                var ratingContenderEntity = _context.RatingContenderEntities.First(contender =>
+                var ratingContenderEntity = context.RatingContenderEntities.First(contender =>
                     Equals(contender.Rating, ((RatingContender)contenders[num]).Rating));
-                _context.AttemptRecordEntities.Add(new AttemptRecordEntity
+                context.AttemptRecordEntities.Add(new AttemptRecordEntity
                 {
                     AttemptNumber = attempt,
                     ContenderEntity = ratingContenderEntity
@@ -56,17 +58,17 @@ public class AttemptsDbConfigurator
             }
         }
 
-        _context.SaveChanges();
+        context.SaveChanges();
     }
 
-    private void FillRatingContenders()
+    private void FillRatingContenders(AttemptsDbContext context)
     {
         _generator.CreateContenders();
         var contenders = _generator.GetContenders();
         foreach (var contender in contenders)
         {
             var ratingContender = (RatingContender)contender;
-            _context.RatingContenderEntities.Add(new RatingContenderEntity
+            context.RatingContenderEntities.Add(new RatingContenderEntity
             {
                 Surname = ratingContender.Surname,
                 Name = ratingContender.Name,
@@ -75,6 +77,6 @@ public class AttemptsDbConfigurator
             });
         }
 
-        _context.SaveChanges();
+        context.SaveChanges();
     }
 }

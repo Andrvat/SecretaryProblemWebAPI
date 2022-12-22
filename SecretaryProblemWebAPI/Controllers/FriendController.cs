@@ -35,7 +35,12 @@ public class FriendController : ControllerBase
         }
         catch (Exception e)
         {
-            return BadRequest(e.Message);
+            return BadRequest(
+                new ErrorDto
+                {
+                    Description = e.Message
+                }
+            );
         }
     }
 }

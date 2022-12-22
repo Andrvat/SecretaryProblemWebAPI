@@ -1,4 +1,5 @@
-﻿using SecretaryProblemWebAPI.Generators;
+﻿using System.Text;
+using SecretaryProblemWebAPI.Generators;
 
 namespace SecretaryProblemWebAPI.Middlewares;
 
@@ -28,8 +29,17 @@ public class HandleHttpRequestMiddleware
 
     public async Task Invoke(HttpContext context)
     {
-        await HandleRequest(context);
-        await _next(context);
+        try
+        {
+            await HandleRequest(context);
+            await _next(context);
+        }
+        catch (Exception e)
+        {
+            var bytes = Encoding.UTF8.GetBytes(e.Message);
+            context.Response.StatusCode = StatusCodes.Status400BadRequest;
+            await context.Response.Body.WriteAsync(bytes, 0, bytes.Length);
+        }
     }
 
     private Task HandleRequest(HttpContext context)

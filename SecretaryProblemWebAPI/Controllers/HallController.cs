@@ -31,7 +31,6 @@ public class HallController : ControllerBase
                         Name = null
                     });
             }
-
             var currentContender = (RatingContender)_hall.GetNextContender();
             _friend.NotifyAboutContender(currentContender);
             

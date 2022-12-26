@@ -42,6 +42,7 @@ public class HallController : ControllerBase
 
             dto = new ContenderFullNameDto { Name = currentContender.GetFullName() };
             await _publishEndpoint.Publish<IContenderCreated>(new { FullNameDto = dto });
+            
             return Ok();
         }
         catch (Exception)

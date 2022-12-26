@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace SecretaryProblemWebAPI.Controllers;
 
 [ApiController]
-[Route("api/")]
+[Route("api/friend/")]
 public class FriendController : ControllerBase
 {
     private readonly Friend _friend;
@@ -14,7 +14,7 @@ public class FriendController : ControllerBase
         _friend = friend;
     }
 
-    [HttpPost("friend/{attemptId:int}/compare")]
+    [HttpPost("{attemptId:int}/compare")]
     public IActionResult CompareContenders(int attemptId,
         [FromBody] ContendersComparisonDto contendersComparisonDto,
         [FromQuery] int session)

@@ -10,16 +10,19 @@ namespace SecretaryProblemWebClient;
 
 public class PrincessHttpWebClient
 {
-    private const string RemoteServerUri = "http://localhost:5197/";
+    private readonly string _remoteServerUri;
+    private readonly string _remoteServerSession;
 
     private readonly IServiceScopeFactory _scopeFactory;
 
     private readonly ContenderConsumerService _contenderConsumerService;
-        
+
     public PrincessHttpWebClient(IServiceScopeFactory scopeFactory, ContenderConsumerService contenderConsumerService)
     {
         _scopeFactory = scopeFactory;
         _contenderConsumerService = contenderConsumerService;
+        _remoteServerUri = System.Configuration.ConfigurationManager.AppSettings["remote-server-uri-competition"]!;
+        _remoteServerSession = System.Configuration.ConfigurationManager.AppSettings["session-competition"]!;
     }
 
     public Contender GetNextContender()
@@ -28,11 +31,12 @@ public class PrincessHttpWebClient
 
         var attemptId = scope.ServiceProvider.GetService<AttemptsNumberProvider>()!.AttemptNumber;
         var response = GetConfiguredHttpClient().PostAsync(
-            $"api/hall/{attemptId}/nextmq", new StringContent($"{attemptId}")).Result;
+            $"api/hall/{attemptId}/next?sessionId={_remoteServerSession}", new StringContent($"{attemptId}")).Result;
 
         if (!response.IsSuccessStatusCode)
         {
-            throw new DataException($"Remote server: {response.StatusCode}. An error occurred in the messages broker");
+            var error = response.Content.ReadAsStringAsync().Result;
+            throw new DataException($"Remote server: {response.StatusCode}. Raw description: {error}");
         }
 
         var contender = _contenderConsumerService.AwaitContender().Result;
@@ -53,7 +57,8 @@ public class PrincessHttpWebClient
             Name1 = firstContender.GetFullName(),
             Name2 = secondContender.GetFullName()
         };
-        var response = GetConfiguredHttpClient().PostAsync($"api/friend/{attemptId}/compare",
+        var response = GetConfiguredHttpClient().PostAsync(
+            $"api/friend/{attemptId}/compare?sessionId={_remoteServerSession}",
             new StringContent(
                 JsonConvert.SerializeObject(contendersComparisonDto),
                 Encoding.UTF8,
@@ -69,16 +74,17 @@ public class PrincessHttpWebClient
         var attemptId = scope.ServiceProvider.GetService<AttemptsNumberProvider>()!.AttemptNumber;
 
         var response = GetConfiguredHttpClient()
-            .PostAsync($"api/hall/{attemptId}/select", new StringContent($"{attemptId}")).Result;
+            .PostAsync($"api/hall/{attemptId}/select?sessionId={_remoteServerSession}", new StringContent($"{attemptId}"))
+            .Result;
 
         var contenderRankDto = JsonConvert.DeserializeObject<ContenderRankDto>(GetResponseString(response));
         return contenderRankDto!.Rank.Value;
     }
 
-    private static HttpClient GetConfiguredHttpClient()
+    private HttpClient GetConfiguredHttpClient()
     {
         var httpClient = new HttpClient(GetConfiguredSslClientHandler());
-        httpClient.BaseAddress = new Uri(RemoteServerUri);
+        httpClient.BaseAddress = new Uri(_remoteServerUri);
         httpClient.Timeout = TimeSpan.FromMinutes(5);
         return httpClient;
     }
@@ -92,10 +98,15 @@ public class PrincessHttpWebClient
 
     private static string GetResponseString(HttpResponseMessage? response)
     {
+        // if (!response.IsSuccessStatusCode)
+        // {
+        //     var errorDto = JsonConvert.DeserializeObject<ErrorDto>(response.Content.ReadAsStringAsync().Result);
+        //     throw new DataException($"Remote server: {response.StatusCode}. Description: {errorDto.Description}");
+        // }
         if (!response.IsSuccessStatusCode)
         {
-            var errorDto = JsonConvert.DeserializeObject<ErrorDto>(response.Content.ReadAsStringAsync().Result);
-            throw new DataException($"Remote server: {response.StatusCode}. Description: {errorDto.Description}");
+            var error = response.Content.ReadAsStringAsync().Result;
+            throw new DataException($"Remote server: {response.StatusCode}. Raw description: {error}");
         }
 
         return response.Content.ReadAsStringAsync().Result;

@@ -22,10 +22,10 @@ builder.Services.AddMassTransit(x =>
 {
     x.UsingRabbitMq((_, cfg) =>
     {
-        cfg.Host(new Uri("rabbitmq://localhost:5672/"), h =>
+        cfg.Host(new Uri(System.Configuration.ConfigurationManager.AppSettings["rabbitmq-ip-local"]!), h =>
         {
-            h.Username("guest");
-            h.Password("guest");
+            h.Username(System.Configuration.ConfigurationManager.AppSettings["rabbitmq-user-local"]!);
+            h.Password(System.Configuration.ConfigurationManager.AppSettings["rabbitmq-password-local"]!);
         });
     });
 });

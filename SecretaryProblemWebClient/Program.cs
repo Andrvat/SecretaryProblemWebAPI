@@ -32,10 +32,10 @@ public static class Program
                 x.AddConsumer<ContenderCreatedConsumer>();
                 x.UsingRabbitMq((ctx, cfg) =>
                 {
-                    cfg.Host(new Uri("rabbitmq://localhost:5672/"), h =>
+                    cfg.Host(new Uri(System.Configuration.ConfigurationManager.AppSettings["rabbitmq-ip-competition"]!), h =>
                     {
-                        h.Username("guest");
-                        h.Password("guest");
+                        h.Username(System.Configuration.ConfigurationManager.AppSettings["rabbitmq-user-competition"]!);
+                        h.Password(System.Configuration.ConfigurationManager.AppSettings["rabbitmq-password-competition"]!);
                     });
 
                     cfg.ConfigureEndpoints(ctx);

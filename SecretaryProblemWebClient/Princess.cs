@@ -6,7 +6,7 @@ public class Princess
 {
     public const int ContendersTotalNumber = 100;
     private const double ContendersToSkipFactor = 1 / Math.E;
-    private const double ContendersLimitFactor = 0.96;
+    private const double ContendersLimitFactor = 1;
 
     private int? _currentContenderNumber;
     private readonly List<Contender> _visitedContenders = new();
@@ -56,31 +56,30 @@ public class Princess
 
             if (contendersCounter >= ContendersTotalNumber * ContendersToSkipFactor * ContendersLimitFactor)
             {
-                // contendersCounter = 0;
-                // foreach (var bestContender in _bestContenders)
-                // {
-                //     var friendAnswer = _context.Friend.ReplyToComparison(
-                //         newContender: contender,
-                //         oldContender: bestContender);
-                //     if (friendAnswer)
-                //     {
-                //         contendersCounter++;
-                //     }
-                // }
-                //
-                // if (_bestContenders.Count > 7 && _bestContenders.Count - 4 <= contendersCounter  && contendersCounter <= _bestContenders.Count - 3)
-                // {
-                //     return contender;
-                // }
-                //
-                // _bestContenders.Add(contender);
-                var rank = _webClient.GetFinalContenderRank();
-                return new RatingContender(
-                    surname: contender.Surname,
-                    name: contender.Name,
-                    patronymic: contender.Patronymic,
-                    rating: rank
-                );
+                contendersCounter = 0;
+                foreach (var bestContender in _bestContenders)
+                {
+                    var friendAnswer = _webClient.CompareContenders(
+                        firstContender: contender,
+                        secondContender: bestContender);
+                    if (friendAnswer)
+                    {
+                        contendersCounter++;
+                    }
+                }
+
+                if (_bestContenders.Count >= 3 && contendersCounter == _bestContenders.Count)
+                {
+                    var rank = _webClient.GetFinalContenderRank();
+                    return new RatingContender(
+                        surname: contender.Surname,
+                        name: contender.Name,
+                        patronymic: contender.Patronymic,
+                        rating: rank
+                    );
+                }
+
+                _bestContenders.Add(contender);
             }
 
             RememberVisitedContender(contender);

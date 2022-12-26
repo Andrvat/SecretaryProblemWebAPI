@@ -79,6 +79,7 @@ public class PrincessHttpWebClient
     {
         var httpClient = new HttpClient(GetConfiguredSslClientHandler());
         httpClient.BaseAddress = new Uri(RemoteServerUri);
+        httpClient.Timeout = TimeSpan.FromMinutes(5);
         return httpClient;
     }
 

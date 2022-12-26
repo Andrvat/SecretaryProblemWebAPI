@@ -21,7 +21,7 @@ public class PrincessHttpWebClient
     {
         _scopeFactory = scopeFactory;
         _contenderConsumerService = contenderConsumerService;
-        _remoteServerUri = System.Configuration.ConfigurationManager.AppSettings["remote-server-uri-competition"]!;
+        _remoteServerUri = System.Configuration.ConfigurationManager.AppSettings["remote-server-uri-local"]!;
         _remoteServerSession = System.Configuration.ConfigurationManager.AppSettings["session-competition"]!;
     }
 

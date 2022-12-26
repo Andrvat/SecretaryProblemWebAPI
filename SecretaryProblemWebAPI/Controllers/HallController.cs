@@ -25,7 +25,7 @@ public class HallController : ControllerBase
     }
 
     [HttpPost("{attemptNumber:int}/next")]
-    public async Task<IActionResult> GetNextContenderForGivenAttemptRabbitMq(int attemptNumber, [FromQuery] int session)
+    public async Task<IActionResult> GetNextContenderForGivenAttemptRabbitMq(int attemptNumber, [FromQuery] string sessionId)
     {
         try
         {
@@ -33,7 +33,7 @@ public class HallController : ControllerBase
             if (_hall.GetQueueCount() == 0)
             {
                 dto = new ContenderFullNameDto { Name = null };
-                await _publishEndpoint.Publish<IContenderCreated>(new { FullNameDto = dto });
+                await _publishEndpoint.Publish<Nsu.PickyBride.DataContracts.Contender>(new { Name = dto });
                 return Ok();
             }
 
@@ -41,7 +41,7 @@ public class HallController : ControllerBase
             _friend.NotifyAboutContender(currentContender);
 
             dto = new ContenderFullNameDto { Name = currentContender.GetFullName() };
-            await _publishEndpoint.Publish<IContenderCreated>(new { FullNameDto = dto });
+            await _publishEndpoint.Publish<Nsu.PickyBride.DataContracts.Contender>(new { Name = dto });
             
             return Ok();
         }
@@ -52,7 +52,7 @@ public class HallController : ControllerBase
     }
 
     [HttpPost("{attemptNumber:int}/select")]
-    public IActionResult GetContenderRankFromAttempt(int attemptNumber, [FromQuery] int session)
+    public IActionResult GetContenderRankFromAttempt(int attemptNumber, [FromQuery] string sessionId)
     {
         try
         {

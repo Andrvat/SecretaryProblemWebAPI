@@ -17,7 +17,7 @@ public class FriendController : ControllerBase
     [HttpPost("{attemptId:int}/compare")]
     public IActionResult CompareContenders(int attemptId,
         [FromBody] ContendersComparisonDto contendersComparisonDto,
-        [FromQuery] int session)
+        [FromQuery] string sessionId)
     {
         try
         {

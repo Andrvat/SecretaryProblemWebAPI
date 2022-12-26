@@ -1,8 +1,8 @@
 ﻿using DataContracts.Dtos;
 
-namespace DataContracts.MassTransit;
+namespace Nsu.PickyBride.DataContracts;
 
-public interface IContenderCreated
+public interface Contender
 {
     public ContenderFullNameDto? Name { get; set; }
 }

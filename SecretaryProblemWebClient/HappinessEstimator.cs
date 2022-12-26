@@ -1,4 +1,4 @@
-﻿using SecretaryProblemWebAPI;
+﻿using DataContracts.Common;
 
 namespace SecretaryProblemWebClient;
 

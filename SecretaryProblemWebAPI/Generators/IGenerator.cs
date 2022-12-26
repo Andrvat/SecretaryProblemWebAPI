@@ -1,4 +1,6 @@
-﻿namespace SecretaryProblemWebAPI.Generators;
+﻿using DataContracts.Common;
+
+namespace SecretaryProblemWebAPI.Generators;
 
 public interface IGenerator
 {

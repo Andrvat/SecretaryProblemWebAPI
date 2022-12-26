@@ -1,4 +1,6 @@
-﻿namespace SecretaryProblemWebAPI.Generators;
+﻿using DataContracts.Common;
+
+namespace SecretaryProblemWebAPI.Generators;
 
 
 public class ContendersFileGenerator : IGenerator
@@ -45,7 +47,6 @@ public class ContendersFileGenerator : IGenerator
             contenders.Add(new RatingContender(
                 surname: row[0],
                 name: row[1],
-                patronymic: row[2],
                 rating: int.Parse(row[3])));
         }
 

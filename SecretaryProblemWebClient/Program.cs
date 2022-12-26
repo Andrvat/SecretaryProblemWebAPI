@@ -1,6 +1,7 @@
 ﻿using MassTransit;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Nsu.PeakyBride.DataContracts;
 
 namespace SecretaryProblemWebClient;
 
@@ -20,7 +21,7 @@ public static class Program
             services.AddSingleton<AttemptsNumberProvider>();
             services.AddScoped<PrincessHttpWebClient>();
             services.AddScoped<Princess>();
-            services.AddScoped<ContenderCreatedConsumer>();
+            services.AddScoped<ContenderConsumer>();
             services.AddSingleton<ContenderConsumerService>();
             services.AddHttpClient();
 
@@ -29,13 +30,13 @@ public static class Program
 
             services.AddMassTransit(x =>
             {
-                x.AddConsumer<ContenderCreatedConsumer>();
+                x.AddConsumer<ContenderConsumer>();
                 x.UsingRabbitMq((ctx, cfg) =>
                 {
-                    cfg.Host(new Uri(System.Configuration.ConfigurationManager.AppSettings["rabbitmq-ip-local"]!), h =>
+                    cfg.Host(new Uri(System.Configuration.ConfigurationManager.AppSettings["rabbitmq-ip-competition"]!), h =>
                     {
-                        h.Username(System.Configuration.ConfigurationManager.AppSettings["rabbitmq-user-local"]!);
-                        h.Password(System.Configuration.ConfigurationManager.AppSettings["rabbitmq-password-local"]!);
+                        h.Username(System.Configuration.ConfigurationManager.AppSettings["rabbitmq-user-competition"]!);
+                        h.Password(System.Configuration.ConfigurationManager.AppSettings["rabbitmq-password-competition"]!);
                     });
 
                     cfg.ConfigureEndpoints(ctx);

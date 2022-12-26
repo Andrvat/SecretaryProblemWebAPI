@@ -1,4 +1,5 @@
-﻿using DataContracts.Entities;
+﻿using DataContracts.Common;
+using DataContracts.Entities;
 using SecretaryProblemWebAPI.Generators;
 
 namespace SecretaryProblemWebAPI;
@@ -72,7 +73,6 @@ public class AttemptsDbConfigurator
             {
                 Surname = ratingContender.Surname,
                 Name = ratingContender.Name,
-                Patronymic = ratingContender.Patronymic,
                 Rating = ratingContender.Rating
             });
         }

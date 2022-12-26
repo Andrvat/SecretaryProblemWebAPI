@@ -37,7 +37,6 @@ public class ContendersDbGenerator : IGenerator
             contenders.Add(new RatingContender(
                 surname: recordEntity.Surname,
                 name: recordEntity.Name,
-                patronymic: recordEntity.Patronymic,
                 rating: recordEntity.Rating
                 ));
         }

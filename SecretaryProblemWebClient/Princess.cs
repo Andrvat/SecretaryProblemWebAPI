@@ -1,4 +1,4 @@
-﻿using SecretaryProblemWebAPI;
+﻿using DataContracts.Common;
 
 namespace SecretaryProblemWebClient;
 
@@ -25,27 +25,27 @@ public class Princess
         _visitedContenders.Add(contender);
     }
 
-    private void SkipForeverByFactor()
+    private async void SkipForeverByFactor()
     {
         _currentContenderNumber = 0;
         for (var i = 0; i < ContendersTotalNumber * ContendersToSkipFactor; i++)
         {
-            RememberVisitedContender(_webClient.GetNextContender());
+            RememberVisitedContender(await _webClient.GetNextContender());
             _currentContenderNumber += 1;
         }
     }
 
-    public Contender? MakeChoice()
+    public async Task<Contender?> MakeChoice()
     {
         SkipForeverByFactor();
 
         while (_currentContenderNumber < ContendersTotalNumber)
         {
-            var contender = _webClient.GetNextContender();
+            var contender = await _webClient.GetNextContender();
             var contendersCounter = 0;
             foreach (var visitedContender in _visitedContenders)
             {
-                var friendAnswer = _webClient.CompareContenders(
+                var friendAnswer = await _webClient.CompareContenders(
                     firstContender: contender,
                     secondContender: visitedContender);
                 if (friendAnswer)
@@ -59,7 +59,7 @@ public class Princess
                 contendersCounter = 0;
                 foreach (var bestContender in _bestContenders)
                 {
-                    var friendAnswer = _webClient.CompareContenders(
+                    var friendAnswer = await _webClient.CompareContenders(
                         firstContender: contender,
                         secondContender: bestContender);
                     if (friendAnswer)
@@ -70,11 +70,10 @@ public class Princess
 
                 if (_bestContenders.Count >= 3 && contendersCounter == _bestContenders.Count)
                 {
-                    var rank = _webClient.GetFinalContenderRank();
+                    var rank = await _webClient.GetFinalContenderRank();
                     return new RatingContender(
                         surname: contender.Surname,
                         name: contender.Name,
-                        patronymic: contender.Patronymic,
                         rating: rank
                     );
                 }

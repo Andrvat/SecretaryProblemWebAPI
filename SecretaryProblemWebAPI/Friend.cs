@@ -1,4 +1,6 @@
-﻿namespace SecretaryProblemWebAPI;
+﻿using DataContracts.Common;
+
+namespace SecretaryProblemWebAPI;
 
 public class Friend
 {

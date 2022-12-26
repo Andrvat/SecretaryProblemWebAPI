@@ -1,4 +1,5 @@
-﻿using DataContracts.Dtos;
+﻿using DataContracts.Common;
+using DataContracts.Dtos;
 using DataContracts.MassTransit;
 using MassTransit;
 using Microsoft.AspNetCore.Mvc;
@@ -29,19 +30,19 @@ public class HallController : ControllerBase
     {
         try
         {
-            ContenderFullNameDto? dto;
+            string? name;
             if (_hall.GetQueueCount() == 0)
             {
-                dto = new ContenderFullNameDto { Name = null };
-                await _publishEndpoint.Publish<Nsu.PickyBride.DataContracts.Contender>(new { Name = dto });
+                name = null;
+                await _publishEndpoint.Publish<Nsu.PeakyBride.DataContracts.Contender>(new { Name = name });
                 return Ok();
             }
 
             var currentContender = (RatingContender)_hall.GetNextContender();
             _friend.NotifyAboutContender(currentContender);
 
-            dto = new ContenderFullNameDto { Name = currentContender.GetFullName() };
-            await _publishEndpoint.Publish<Nsu.PickyBride.DataContracts.Contender>(new { Name = dto });
+            name = currentContender.GetFullName();
+            await _publishEndpoint.Publish<Nsu.PeakyBride.DataContracts.Contender>(new { Name = name });
             
             return Ok();
         }

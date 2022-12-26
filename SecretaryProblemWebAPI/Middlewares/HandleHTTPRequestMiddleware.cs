@@ -48,12 +48,12 @@ public class HandleHttpRequestMiddleware
         var uriPath = context.Request.Path.Value;
         var uriTokens = uriPath?.Split("/");
 
-        if (uriTokens.Length < 3)
+        if (uriTokens.Length < 4)
         {
             throw new UriFormatException("Bad request");
         }
 
-        if (int.TryParse(uriTokens?[2], out var requestAttemptNumber))
+        if (int.TryParse(uriTokens?[3], out var requestAttemptNumber))
         {
             if (requestAttemptNumber is < 0 or > AttemptsDbConfigurator.AttemptsNumber)
             {
@@ -65,7 +65,7 @@ public class HandleHttpRequestMiddleware
                 return Task.CompletedTask;
             }
 
-            switch (uriTokens[1].ToLowerInvariant())
+            switch (uriTokens[2].ToLowerInvariant())
             {
                 case "hall":
                 {

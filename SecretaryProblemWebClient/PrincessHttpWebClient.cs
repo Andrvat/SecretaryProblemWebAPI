@@ -14,9 +14,12 @@ public class PrincessHttpWebClient
 
     private readonly IServiceScopeFactory _scopeFactory;
 
-    public PrincessHttpWebClient(IServiceScopeFactory scopeFactory)
+    private readonly ContenderConsumerService _contenderConsumerService;
+        
+    public PrincessHttpWebClient(IServiceScopeFactory scopeFactory, ContenderConsumerService contenderConsumerService)
     {
         _scopeFactory = scopeFactory;
+        _contenderConsumerService = contenderConsumerService;
     }
 
     public Contender GetNextContender()
@@ -25,10 +28,15 @@ public class PrincessHttpWebClient
 
         var attemptId = scope.ServiceProvider.GetService<AttemptsNumberProvider>()!.AttemptNumber;
         var response = GetConfiguredHttpClient().PostAsync(
-            $"hall/{attemptId}/next", new StringContent($"{attemptId}")).Result;
+            $"api/hall/{attemptId}/nextmq", new StringContent($"{attemptId}")).Result;
 
-        var contender = JsonConvert.DeserializeObject<ContenderFullNameDto>(GetResponseString(response));
-        var contenderFullName = contender.Name.Split(" ");
+        if (!response.IsSuccessStatusCode)
+        {
+            throw new DataException($"Remote server: {response.StatusCode}. An error occurred in the messages broker");
+        }
+
+        var contender = _contenderConsumerService.AwaitContender().Result;
+        var contenderFullName = contender.Name?.Split(" ");
         return new Contender(
             surname: contenderFullName[0],
             name: contenderFullName[1],
@@ -45,7 +53,7 @@ public class PrincessHttpWebClient
             Name1 = firstContender.GetFullName(),
             Name2 = secondContender.GetFullName()
         };
-        var response = GetConfiguredHttpClient().PostAsync($"friend/{attemptId}/compare",
+        var response = GetConfiguredHttpClient().PostAsync($"api/friend/{attemptId}/compare",
             new StringContent(
                 JsonConvert.SerializeObject(contendersComparisonDto),
                 Encoding.UTF8,
@@ -61,7 +69,7 @@ public class PrincessHttpWebClient
         var attemptId = scope.ServiceProvider.GetService<AttemptsNumberProvider>()!.AttemptNumber;
 
         var response = GetConfiguredHttpClient()
-            .PostAsync($"hall/{attemptId}/select", new StringContent($"{attemptId}")).Result;
+            .PostAsync($"api/hall/{attemptId}/select", new StringContent($"{attemptId}")).Result;
 
         var contenderRankDto = JsonConvert.DeserializeObject<ContenderRankDto>(GetResponseString(response));
         return contenderRankDto!.Rank.Value;

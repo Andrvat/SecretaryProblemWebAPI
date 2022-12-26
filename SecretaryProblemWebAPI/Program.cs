@@ -1,4 +1,5 @@
 using DataContracts.Common;
+using MassTransit;
 using SecretaryProblemWebAPI;
 using SecretaryProblemWebAPI.Generators;
 using SecretaryProblemWebAPI.Middlewares;
@@ -16,6 +17,18 @@ builder.Services.AddSingleton<ContendersDbGenerator>();
 
 builder.Services.AddSingleton<Hall>();
 builder.Services.AddSingleton<Friend>();
+
+builder.Services.AddMassTransit(x =>
+{
+    x.UsingRabbitMq((_, cfg) =>
+    {
+        cfg.Host(new Uri("rabbitmq://localhost:5672/"), h =>
+        {
+            h.Username("guest");
+            h.Password("guest");
+        });
+    });
+});
 
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle

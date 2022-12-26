@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace SecretaryProblemWebAPI.Controllers;
 
 [ApiController]
+[Route("api/")]
 public class FriendController : ControllerBase
 {
     private readonly Friend _friend;

@@ -1,57 +1,56 @@
 ﻿using DataContracts.Dtos;
+using DataContracts.MassTransit;
+using MassTransit;
 using Microsoft.AspNetCore.Mvc;
 
 namespace SecretaryProblemWebAPI.Controllers;
 
 [ApiController]
+[Route("api/hall/")]
 public class HallController : ControllerBase
 {
     private readonly ILogger<HallController> _logger;
 
+    private readonly IPublishEndpoint _publishEndpoint;
+
     private readonly Hall _hall;
     private readonly Friend _friend;
 
-    public HallController(ILogger<HallController> logger, Hall hall, Friend friend)
+    public HallController(ILogger<HallController> logger, Hall hall, Friend friend, IPublishEndpoint publishEndpoint)
     {
         _logger = logger;
         _hall = hall;
         _friend = friend;
+        _publishEndpoint = publishEndpoint;
     }
 
-    [HttpPost("hall/{attemptNumber:int}/next")]
-    public IActionResult GetNextContenderForGivenAttempt(int attemptNumber, [FromQuery] int session)
+    [HttpPost("{attemptNumber:int}/next")]
+    public async Task<IActionResult> GetNextContenderForGivenAttemptRabbitMq(int attemptNumber, [FromQuery] int session)
     {
         try
         {
+            ContenderFullNameDto? dto;
             if (_hall.GetQueueCount() == 0)
             {
-                return Ok(
-                    new ContenderFullNameDto
-                    {
-                        Name = null
-                    });
+                dto = new ContenderFullNameDto { Name = null };
+                await _publishEndpoint.Publish<IContenderCreated>(new { FullNameDto = dto });
+                return Ok();
             }
+
             var currentContender = (RatingContender)_hall.GetNextContender();
             _friend.NotifyAboutContender(currentContender);
-            
-            return Ok(
-                new ContenderFullNameDto
-                {
-                    Name = currentContender.GetFullName()
-                });
+
+            dto = new ContenderFullNameDto { Name = currentContender.GetFullName() };
+            await _publishEndpoint.Publish<IContenderCreated>(new { FullNameDto = dto });
+            return Ok();
         }
-        catch (Exception e)
+        catch (Exception)
         {
-            return BadRequest(
-                new ErrorDto
-                {
-                    Description = e.Message
-                }
-            );
+            return BadRequest();
         }
     }
 
-    [HttpPost("hall/{attemptNumber:int}/select")]
+    [HttpPost("{attemptNumber:int}/select")]
     public IActionResult GetContenderRankFromAttempt(int attemptNumber, [FromQuery] int session)
     {
         try

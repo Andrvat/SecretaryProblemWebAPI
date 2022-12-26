@@ -58,3 +58,11 @@ C:\Users\user\RiderProjects\SecretaryProblemWebAPI\DataContracts\obj\Debug\net6.
 C:\Users\user\RiderProjects\SecretaryProblemWebAPI\DataContracts\obj\Debug\net6.0\DataContracts.genruntimeconfig.cache
 C:\Users\user\RiderProjects\SecretaryProblemWebAPI\DataContracts\obj\Debug\net6.0\ref\DataContracts.dll
 C:\Users\user\RiderProjects\SecretaryProblemWebAPI\DataContracts\bin\Debug\net6.0\Newtonsoft.Json.dll
+C:\Users\user\RiderProjects\SecretaryProblemWebAPI\DataContracts\bin\Debug\net6.0\MassTransit.dll
+C:\Users\user\RiderProjects\SecretaryProblemWebAPI\DataContracts\bin\Debug\net6.0\MassTransit.Abstractions.dll
+C:\Users\user\RiderProjects\SecretaryProblemWebAPI\DataContracts\bin\Debug\net6.0\MassTransit.AspNetCoreIntegration.dll
+C:\Users\user\RiderProjects\SecretaryProblemWebAPI\DataContracts\bin\Debug\net6.0\MassTransit.ExtensionsDependencyInjectionIntegration.dll
+C:\Users\user\RiderProjects\SecretaryProblemWebAPI\DataContracts\bin\Debug\net6.0\MassTransit.RabbitMqTransport.dll
+C:\Users\user\RiderProjects\SecretaryProblemWebAPI\DataContracts\bin\Debug\net6.0\Microsoft.Extensions.Diagnostics.HealthChecks.dll
+C:\Users\user\RiderProjects\SecretaryProblemWebAPI\DataContracts\bin\Debug\net6.0\Microsoft.Extensions.Diagnostics.HealthChecks.Abstractions.dll
+C:\Users\user\RiderProjects\SecretaryProblemWebAPI\DataContracts\bin\Debug\net6.0\RabbitMQ.Client.dll

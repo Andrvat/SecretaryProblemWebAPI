@@ -25,29 +25,29 @@ public class Princess
         _visitedContenders.Add(contender);
     }
 
-    private async void SkipForeverByFactor()
+    private void SkipForeverByFactor()
     {
         _currentContenderNumber = 0;
         for (var i = 0; i < ContendersTotalNumber * ContendersToSkipFactor; i++)
         {
-            RememberVisitedContender(await _webClient.GetNextContender());
+            RememberVisitedContender(_webClient.GetNextContender().Result);
             _currentContenderNumber += 1;
         }
     }
 
-    public async Task<Contender?> MakeChoice()
+    public Contender? MakeChoice()
     {
         SkipForeverByFactor();
 
         while (_currentContenderNumber < ContendersTotalNumber)
         {
-            var contender = await _webClient.GetNextContender();
+            var contender = _webClient.GetNextContender().Result;
             var contendersCounter = 0;
             foreach (var visitedContender in _visitedContenders)
             {
-                var friendAnswer = await _webClient.CompareContenders(
+                var friendAnswer = _webClient.CompareContenders(
                     firstContender: contender,
-                    secondContender: visitedContender);
+                    secondContender: visitedContender).Result;
                 if (friendAnswer)
                 {
                     contendersCounter++;
@@ -59,9 +59,9 @@ public class Princess
                 contendersCounter = 0;
                 foreach (var bestContender in _bestContenders)
                 {
-                    var friendAnswer = await _webClient.CompareContenders(
+                    var friendAnswer = _webClient.CompareContenders(
                         firstContender: contender,
-                        secondContender: bestContender);
+                        secondContender: bestContender).Result;
                     if (friendAnswer)
                     {
                         contendersCounter++;
@@ -70,7 +70,7 @@ public class Princess
 
                 if (_bestContenders.Count >= 3 && contendersCounter == _bestContenders.Count)
                 {
-                    var rank = await _webClient.GetFinalContenderRank();
+                    var rank = _webClient.GetFinalContenderRank().Result;
                     return new RatingContender(
                         surname: contender.Surname,
                         name: contender.Name,

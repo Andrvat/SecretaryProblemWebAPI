@@ -65,7 +65,7 @@ public class TaskSimulator : IHostedService
 
     private double GetHappinessByAttempt()
     {
-        var princessChoice = _princess.MakeChoice().Result;
+        var princessChoice = _princess.MakeChoice();
         return HappinessEstimator.EstimatePrincessHappiness(princessChoice);
     }
 

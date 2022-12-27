@@ -41,7 +41,7 @@ public class PrincessHttpWebClient
             throw new DataException($"Remote server: {response.StatusCode}. Raw description: {error}");
         }
         
-        var contenderName = await _contenderConsumerService.AwaitContender();
+        var contenderName = _contenderConsumerService.AwaitContender().Result;
         var contenderFullName = contenderName.Split(" ");
         Console.WriteLine($"Web client notifies about new name: {contenderFullName[0]} {contenderFullName[1]}");
         await Console.Out.FlushAsync();

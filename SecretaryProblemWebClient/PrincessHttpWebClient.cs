@@ -1,4 +1,5 @@
 ﻿using System.Data;
+using System.Diagnostics;
 using System.Text;
 using DataContracts.Common;
 using DataContracts.Dtos;
@@ -25,32 +26,32 @@ public class PrincessHttpWebClient
         _remoteServerSession = System.Configuration.ConfigurationManager.AppSettings["session-competition"]!;
     }
 
-    public async Task<Contender> GetNextContender()
+    public Contender? GetNextContender()
     {
         using var scope = _scopeFactory.CreateScope();
 
         var attemptId = scope.ServiceProvider.GetService<AttemptsNumberProvider>()!.AttemptNumber;
-        Console.WriteLine("Web client will do POST request");
-        await Console.Out.FlushAsync();
-        var response = await GetConfiguredHttpClient().PostAsync(
-            $"api/hall/{attemptId}/next?sessionId={_remoteServerSession}", new StringContent($"{attemptId}"));
+        var response = GetConfiguredHttpClient().PostAsync(
+            $"api/hall/{attemptId}/next?sessionId={_remoteServerSession}", new StringContent($"{attemptId}")).Result;
 
         if (!response.IsSuccessStatusCode)
         {
-            var error = await response.Content.ReadAsStringAsync();
+            var error = response.Content.ReadAsStringAsync().Result;
             throw new DataException($"Remote server: {response.StatusCode}. Raw description: {error}");
         }
-        
+
         var contenderName = _contenderConsumerService.AwaitContender().Result;
+        if (contenderName == "ABC")
+        {
+            return null;
+        }
         var contenderFullName = contenderName.Split(" ");
-        Console.WriteLine($"Web client notifies about new name: {contenderFullName[0]} {contenderFullName[1]}");
-        await Console.Out.FlushAsync();
         return new Contender(
             surname: contenderFullName[0],
             name: contenderFullName[1]);
     }
 
-    public async Task<bool> CompareContenders(Contender firstContender, Contender secondContender)
+    public bool CompareContenders(Contender firstContender, Contender secondContender)
     {
         using var scope = _scopeFactory.CreateScope();
 
@@ -60,28 +61,28 @@ public class PrincessHttpWebClient
             Name1 = firstContender.GetFullName(),
             Name2 = secondContender.GetFullName()
         };
-        var response = await GetConfiguredHttpClient().PostAsync(
+        var response = GetConfiguredHttpClient().PostAsync(
             $"api/freind/{attemptId}/compare?sessionId={_remoteServerSession}",
             new StringContent(
                 JsonConvert.SerializeObject(contendersComparisonDto),
                 Encoding.UTF8,
-                "application/json"));
+                "application/json")).Result;
 
-        var bestContender = JsonConvert.DeserializeObject<ContenderFullNameDto>(await GetResponseString(response));
-        return firstContender.GetFullName() == bestContender.Name;
+        var bestContender = GetResponseString(response);
+        return firstContender.GetFullName() == bestContender;
     }
 
-    public async Task<int> GetFinalContenderRank()
+    public int GetFinalContenderRank()
     {
         using var scope = _scopeFactory.CreateScope();
         var attemptId = scope.ServiceProvider.GetService<AttemptsNumberProvider>()!.AttemptNumber;
 
-        var response = await GetConfiguredHttpClient()
+        var response = GetConfiguredHttpClient()
             .PostAsync($"api/hall/{attemptId}/select?sessionId={_remoteServerSession}",
-                new StringContent($"{attemptId}"));
+                new StringContent($"{attemptId}")).Result;
 
-        var contenderRankDto = JsonConvert.DeserializeObject<ContenderRankDto>(await GetResponseString(response));
-        return contenderRankDto!.Rank.Value;
+        var responseString = GetResponseString(response);
+        return int.Parse(responseString);
     }
 
     private HttpClient GetConfiguredHttpClient()
@@ -99,19 +100,14 @@ public class PrincessHttpWebClient
         return clientHandler;
     }
 
-    private static async Task<string> GetResponseString(HttpResponseMessage? response)
+    private static string GetResponseString(HttpResponseMessage? response)
     {
-        // if (!response.IsSuccessStatusCode)
-        // {
-        //     var errorDto = JsonConvert.DeserializeObject<ErrorDto>(response.Content.ReadAsStringAsync().Result);
-        //     throw new DataException($"Remote server: {response.StatusCode}. Description: {errorDto.Description}");
-        // }
-        if (!response.IsSuccessStatusCode)
+        if (response.IsSuccessStatusCode)
         {
-            var error = await response.Content.ReadAsStringAsync();
-            throw new DataException($"Remote server: {response.StatusCode}. Raw description: {error}");
+            return response.Content.ReadAsStringAsync().Result;
         }
+        var error = response.Content.ReadAsStringAsync().Result;
+        throw new DataException($"Remote server: {response.StatusCode}. Raw description: {error}");
 
-        return  await response.Content.ReadAsStringAsync();
     }
 }

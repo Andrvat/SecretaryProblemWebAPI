@@ -4,25 +4,25 @@ namespace SecretaryProblemWebClient;
 
 public class ContenderConsumerService
 {
-    private string? _contender;
+    private string? _contenderFullName;
     private TaskCompletionSource<string>? _tcs;
 
-    public void SetNextContender(string contender)
+    public void SetNextContender(string? contenderFullName)
     {
-        _contender = contender;
-        _tcs?.SetResult(contender);
+        _contenderFullName = contenderFullName;
+        _tcs?.SetResult(contenderFullName!);
         _tcs = null;
-        Console.WriteLine("Consumer service set result");
-        Console.Out.Flush();
+        // Console.WriteLine("Consumer service set result");
+        // Console.Out.Flush();
     }
 
     public async Task<string> AwaitContender()
     {
-        Console.WriteLine("Consumer service await contender");
-        await Console.Out.FlushAsync();
-        if (_contender != null)
+        // Console.WriteLine("Consumer service await contender");
+        // await Console.Out.FlushAsync();
+        if (_contenderFullName != null)
         {
-            return _contender;
+            return _contenderFullName;
         }
 
         _tcs = new TaskCompletionSource<string>();

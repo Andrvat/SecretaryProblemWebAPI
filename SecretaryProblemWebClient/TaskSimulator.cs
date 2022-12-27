@@ -40,6 +40,7 @@ public class TaskSimulator : IHostedService
         {
             Console.WriteLine(e.Data);
             Console.WriteLine(e.Message);
+            Console.WriteLine(e.ToString());
         }
         finally
         {

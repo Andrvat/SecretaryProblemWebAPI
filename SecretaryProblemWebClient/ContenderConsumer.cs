@@ -15,7 +15,10 @@ public class ContenderConsumer : IConsumer<Contender>
     public Task Consume(ConsumeContext<Contender> context)
     {
         var name = context.Message.Name;
-        Console.WriteLine($"Consumer notifies about new name: {name}");
+        if (name is null)
+        {
+            name = "ABC";
+        }
         _contenderConsumerService.SetNextContender(name);
         return Task.CompletedTask;
     }

@@ -18,9 +18,9 @@ public static class HappinessEstimator
         File.AppendAllText(path, $"{ratingContender.Rating}, {ratingContender.GetFullName()}\n");
         return ratingContender.Rating switch
         {
-            99 => 20,
-            97 => 50,
-            95 => 100,
+            100 => 20,
+            98 => 50,
+            96 => 100,
             _ => 0
         };
     }
